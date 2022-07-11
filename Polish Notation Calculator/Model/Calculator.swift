@@ -12,8 +12,14 @@ class Calculator {
     var numbersStack = Stack<Int>()
     var symbolsStack = Stack<String>()
     
-    func calculate() -> Int {
-        for symbol in separatedInput.reversed() {
+    enum CalculatingError: Error {
+        case WrongInput
+    }
+    
+    func calculate(isReversed: Bool) throws -> Int {
+        var input = [String]()
+        input = isReversed ? separatedInput : separatedInput.reversed()
+        for symbol in input {
             switch symbol {
             case "+", "-", "*", "/" : symbolsStack.push(symbol)
                 switch symbolsStack.pop()! {
@@ -21,9 +27,10 @@ class Calculator {
                 case "-" : numbersStack.push(numbersStack.pop()! - numbersStack.pop()!)
                 case "*" : numbersStack.push(numbersStack.pop()! * numbersStack.pop()!)
                 case "/" : numbersStack.push(numbersStack.pop()! / numbersStack.pop()!)
-                default : break
+                default : throw CalculatingError.WrongInput
                 }
-            default : numbersStack.push(Int(symbol)!)
+            case "0"..."9" : numbersStack.push(Int(symbol)!)
+            default : throw CalculatingError.WrongInput
                 }
         }
         return numbersStack.pop() ?? 0

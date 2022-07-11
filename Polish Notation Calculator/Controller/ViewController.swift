@@ -58,6 +58,21 @@ class ViewController: UIViewController {
         return button
     }()
     
+    var reverseLabel: UILabel = {
+        var label = UILabel(frame: CGRect(x: 0, y: 0, width: 300, height: 50))
+        label.text = "Reversed Notation?"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
+    var reverseSwitch : UISwitch = {
+        var switchButton = UISwitch(frame: CGRect(x: 0, y: 0, width: 50, height: 100))
+        switchButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        return switchButton
+    }()
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -79,6 +94,12 @@ class ViewController: UIViewController {
         view.addSubview(calculateButton)
         calculateConstraints()
         
+        view.addSubview(reverseLabel)
+        
+        view.addSubview(reverseSwitch)
+        reverseSwitchConstraints()
+        reverseLabelConstraints()
+        
         calculateButton.addTarget(self, action: #selector(calculate), for: .touchUpInside)
     }
     
@@ -86,9 +107,17 @@ class ViewController: UIViewController {
         guard inputTextField.text?.isEmpty != true else { inputTextField.placeholder = "Enter example here!"; return }
         
         let input = Separator(text: inputTextField.text!).separate()
-        let answer = Calculator(input: input).calculate()
         
+        var resultOfCalculating : Int? = nil
+        
+        do {
+            resultOfCalculating = try? Calculator(input: input).calculate(isReversed: reverseSwitch.isOn)
+        } catch Calculator.CalculatingError.WrongInput {
+            answerTextField.text = "Wrong input"
+        }
+        if let answer = resultOfCalculating {
         answerTextField.text = String(answer)
+        }
         
     }
     
@@ -128,11 +157,25 @@ class ViewController: UIViewController {
     
     func calculateConstraints() {
         let leftConstraint = calculateButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 100)
-        let bottomConstraint = calculateButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -80)
+        let bottomConstraint = calculateButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50)
         let horizontalConstraint = calculateButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         let rightConstraint = calculateButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -100)
         
         view.addConstraints([leftConstraint, bottomConstraint, horizontalConstraint, rightConstraint])
+    }
+    
+    func reverseLabelConstraints(){
+        let rightConstraint = reverseLabel.rightAnchor.constraint(equalTo: reverseSwitch.leftAnchor, constant: -50)
+        let bottomConstraint = reverseLabel.bottomAnchor.constraint(equalTo: calculateButton.topAnchor, constant: -20)
+        
+        view.addConstraints([rightConstraint, bottomConstraint])
+    }
+    
+    func reverseSwitchConstraints() {
+        let rightConstraint = reverseSwitch.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -50)
+        let bottomConstraint = reverseSwitch.bottomAnchor.constraint(equalTo: calculateButton.topAnchor, constant: -20)
+        
+        view.addConstraints([rightConstraint, bottomConstraint])
     }
 
 }
